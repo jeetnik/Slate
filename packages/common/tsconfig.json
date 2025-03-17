@@ -1,0 +1,9 @@
+
+//packages/common/tsconfig.json
+{
+    "extends":"@repo/typescript-config/base.json",
+    "compilerOptions": {
+        "rootDir": "./src"
+        ,"outDir": "./dist"
+    }
+}

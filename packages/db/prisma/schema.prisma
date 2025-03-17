@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String  @id @default(uuid())
+  email    String  @unique
+  password String
+  name     String?
+  photo    String?
+  rooms    RoomUser[] // Explicit join table for many-to-many
+  chats    Chat[]
+  adminOf  Room[]  @relation("RoomAdmin") // Inverse of `admin` in `Room`
+}
+
+model Room {
+  id        String   @id @default(uuid())
+  slug      String   @unique
+  createdAt DateTime @default(now())
+  adminId   String
+  admin     User     @relation(fields: [adminId], references: [id], name: "RoomAdmin") // Relationship with User
+  chats     Chat[]
+  users     RoomUser[] // Explicit join table for many-to-many
+}
+
+model Chat {
+  id      String  @id @default(uuid())
+  roomId  String
+  message String
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
+  room    Room   @relation(fields: [roomId], references: [id])
+}
+
+// Explicit Many-to-Many Join Table for User <-> Room
+model RoomUser {
+  userId String
+  roomId String
+  user   User @relation(fields: [userId], references: [id])
+  room   Room @relation(fields: [roomId], references: [id])
+
+  @@id([userId, roomId]) // Composite primary key
+}
